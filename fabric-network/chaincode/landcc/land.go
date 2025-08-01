@@ -163,30 +163,65 @@ func emitEvent(ctx contractapi.TransactionContextInterface, eventType, parcelID,
 }
 
 // CreateLandParcel issues a new land parcel to the world state.
-func (s *SmartContract) CreateLandParcel(ctx contractapi.TransactionContextInterface, parcelJSON string) error {
-	var parcel LandParcel
-	if err := json.Unmarshal([]byte(parcelJSON), &parcel); err != nil {
-		return fmt.Errorf("failed to unmarshal JSON: %v", err)
-	}
+// func (s *SmartContract) CreateLandParcel(ctx contractapi.TransactionContextInterface, parcelJSON string) error {
+// 	var parcel LandParcel
+// 	if err := json.Unmarshal([]byte(parcelJSON), &parcel); err != nil {
+// 		return fmt.Errorf("failed to unmarshal JSON: %v", err)
+// 	}
 
-	exists, err := s.LandParcelExists(ctx, parcel.ID)
+// 	exists, err := s.LandParcelExists(ctx, parcel.ID)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if exists {
+// 		return fmt.Errorf("the land parcel %s already exists", parcel.ID)
+// 	}
+
+// 	if err := addHistory(ctx, &parcel, "Land parcel record created and digitized."); err != nil {
+// 		return err
+// 	}
+// 	parcel.AcquisitionStatus = "Notified"
+
+// 	parcelAsBytes, _ := json.Marshal(parcel)
+// 	if err := emitEvent(ctx, "ParcelCreated", parcel.ID, "A new land parcel was digitized."); err != nil {
+// 		return err
+// 	}
+// 	return ctx.GetStub().PutState(parcel.ID, parcelAsBytes)
+// }
+
+func (s *SmartContract) CreateLandParcel(ctx contractapi.TransactionContextInterface, id string, surveyNumber string, village string, tehsil string, area float64, ownerJSON string) error {
+	exists, err := s.LandParcelExists(ctx, id)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf("the land parcel %s already exists", parcel.ID)
+		return fmt.Errorf("the land parcel %s already exists", id)
+	}
+
+	var owners []Owner
+	if err := json.Unmarshal([]byte(ownerJSON), &owners); err != nil {
+		return fmt.Errorf("failed to unmarshal owners JSON: %v", err)
+	}
+
+	parcel := LandParcel{
+		ID:                id,
+		SurveyNumber:      surveyNumber,
+		Village:           village,
+		Tehsil:            tehsil,
+		Area:              area,
+		Owners:            owners,
+		AcquisitionStatus: "Notified",
 	}
 
 	if err := addHistory(ctx, &parcel, "Land parcel record created and digitized."); err != nil {
 		return err
 	}
-	parcel.AcquisitionStatus = "Notified"
 
 	parcelAsBytes, _ := json.Marshal(parcel)
 	if err := emitEvent(ctx, "ParcelCreated", parcel.ID, "A new land parcel was digitized."); err != nil {
 		return err
 	}
-	return ctx.GetStub().PutState(parcel.ID, parcelAsBytes)
+	return ctx.GetStub().PutState(id, parcelAsBytes)
 }
 
 // DeclareAward updates the status of a parcel to 'Awarded'.
