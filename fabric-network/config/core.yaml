@@ -1,0 +1,40 @@
+# fabric-network/config/core.yaml
+
+peer:
+    id: peer0.gov.land.com
+    address: peer0.gov.land.com:7051
+    localMspId: GovOrgMSP
+
+    # This mspConfigPath is required for the peer binary to find its identity.
+    mspConfigPath: /path/to/msp
+
+    tls:
+        enabled: true
+        clientAuthRequired: false
+        # The following paths are overridden by environment variables in network.sh
+        # but are included here for completeness.
+        ca:
+            path: "/path/to/ca.crt"
+        cert:
+            file: "/path/to/tls/cert"
+        key:
+            file: "/path/to/tls/key"
+        clientRootCAs:
+            files:
+              - /path/to/ca.crt
+
+    # This is the section that was missing.
+    # It tells the peer to use a software-based crypto engine.
+    BCCSP:
+        Default: SW
+        SW:
+            Hash: SHA2
+            Security: 256
+            FileKeyStore:
+                KeyStore:
+
+vm:
+    endpoint: unix:///var/run/docker.sock
+
+logging:
+    level:  INFO

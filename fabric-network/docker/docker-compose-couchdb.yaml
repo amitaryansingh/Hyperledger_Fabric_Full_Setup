@@ -1,0 +1,24 @@
+# fabric-network/docker/docker-compose-couchdb.yaml
+
+services:
+  couchdb0_gov:
+    image: couchdb:3.1.1
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "5984:5984"
+    container_name: couchdb0_gov
+    networks:
+      - land_net
+
+  couchdb0_citizen:
+    image: couchdb:3.1.1
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "6984:5984" # Map to a different host port
+    container_name: couchdb0_citizen
+    networks:
+      - land_net

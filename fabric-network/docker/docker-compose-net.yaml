@@ -1,0 +1,124 @@
+networks:
+  land_net:
+    name: fabric_land_net
+
+services:
+  orderer.land.com:
+    image: hyperledger/fabric-orderer:latest
+    container_name: orderer.land.com
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:9444
+      - ORDERER_ADMIN_TLS_ENABLED=true
+      - ORDERER_ADMIN_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_ADMIN_TLS_CLIENTAUTHREQUIRED=true
+      - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    command: orderer
+    volumes:
+      - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ../crypto-config/ordererOrganizations/land.com/orderers/orderer.land.com/msp:/var/hyperledger/orderer/msp
+      - ../crypto-config/ordererOrganizations/land.com/orderers/orderer.land.com/tls/:/var/hyperledger/orderer/tls
+    ports:
+      - "7050:7050"
+      - "7053:9444"
+      - "9443:9443"
+    networks:
+      - land_net
+
+  peer0.gov.land.com:
+    container_name: peer0.gov.land.com
+    image: hyperledger/fabric-peer:latest
+    environment:
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_land_net
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_ID=peer0.gov.land.com
+      - CORE_PEER_ADDRESS=peer0.gov.land.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.gov.land.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.gov.land.com:7051
+      - CORE_PEER_LOCALMSPID=GovOrgMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0_gov:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    command: peer node start
+    volumes:
+        - /var/run/docker.sock:/host/var/run/docker.sock
+        - ../crypto-config/peerOrganizations/gov.land.com/peers/peer0.gov.land.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/gov.land.com/peers/peer0.gov.land.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "7051:7051"
+    networks:
+      - land_net
+    depends_on:
+      - couchdb0_gov
+
+  peer0.citizen.land.com:
+    container_name: peer0.citizen.land.com
+    image: hyperledger/fabric-peer:latest
+    environment:
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_land_net
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_ID=peer0.citizen.land.com
+      - CORE_PEER_ADDRESS=peer0.citizen.land.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.citizen.land.com:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.citizen.land.com:9051
+      - CORE_PEER_LOCALMSPID=CitizenOrgMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0_citizen:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    command: peer node start
+    volumes:
+        - /var/run/docker.sock:/host/var/run/docker.sock
+        - ../crypto-config/peerOrganizations/citizen.land.com/peers/peer0.citizen.land.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/citizen.land.com/peers/peer0.citizen.land.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "9051:9051"
+    networks:
+      - land_net
+    depends_on:
+      - couchdb0_citizen
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:latest
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.gov.land.com:7051
+      - CORE_PEER_LOCALMSPID=GovOrgMSP
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../../fabric-network:/opt/gopath/src/github.com/hyperledger/fabric/peer/fabric-network
+    networks:
+      - land_net
+    depends_on:
+      - orderer.land.com
+      - peer0.gov.land.com
+      - peer0.citizen.land.com

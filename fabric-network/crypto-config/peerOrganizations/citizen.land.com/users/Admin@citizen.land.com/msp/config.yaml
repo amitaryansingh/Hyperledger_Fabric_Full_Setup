@@ -1,0 +1,11 @@
+# fabric-network/config/config.yaml
+NodeOUs:
+  Enable: true
+  ClientOUIdentifier:
+    OrganizationalUnitIdentifier: client
+  PeerOUIdentifier:
+    OrganizationalUnitIdentifier: peer
+  AdminOUIdentifier:
+    OrganizationalUnitIdentifier: admin
+  OrdererOUIdentifier:
+    OrganizationalUnitIdentifier: orderer
