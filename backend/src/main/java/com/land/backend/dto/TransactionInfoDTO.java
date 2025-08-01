@@ -22,4 +22,7 @@ public class TransactionInfoDTO {
     public void setChaincodeName(String chaincodeName) { this.chaincodeName = chaincodeName; }
     public List<String> getFunctionArgs() { return functionArgs; }
     public void setFunctionArgs(List<String> functionArgs) { this.functionArgs = functionArgs; }
+
+    public String getFunctionName() { return functionName; }
+    public void setFunctionName(String functionName) { this.functionName = functionName; }
 }

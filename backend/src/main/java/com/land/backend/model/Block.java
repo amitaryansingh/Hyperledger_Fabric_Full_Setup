@@ -20,7 +20,7 @@ public class Block {
     private Instant timestamp;
 
     @OneToMany(mappedBy = "block", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<TransactionPackage.Transaction> transactions = new ArrayList<>();
+    private List<Transaction> transactions = new ArrayList<>();
 
     // Getters and Setters
     public Long getBlockNumber() { return blockNumber; }
@@ -31,6 +31,6 @@ public class Block {
     public void setPreviousHash(String previousHash) { this.previousHash = previousHash; }
     public Instant getTimestamp() { return timestamp; }
     public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
-    public List<TransactionPackage.Transaction> getTransactions() { return transactions; }
-    public void setTransactions(List<TransactionPackage.Transaction> transactions) { this.transactions = transactions; }
+    public List<Transaction> getTransactions() { return transactions; }
+    public void setTransactions(List<Transaction> transactions) { this.transactions = transactions; }
 }
