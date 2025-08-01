@@ -46,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning> {/* <--- ADD THIS PROP */}
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         {children}
         <Toaster richColors />
