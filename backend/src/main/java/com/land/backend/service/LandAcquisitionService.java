@@ -64,10 +64,18 @@ public class LandAcquisitionService {
         try {
             Network network = fabricGateway.getNetwork("landchannel");
             Contract contract = network.getContract("landcc");
-            java.util.Map<String, Object> blockchainData = objectMapper.convertValue(savedParcel, java.util.Map.class);
-            blockchainData.put("id", getBlockchainId(savedParcel));
-            String parcelJson = objectMapper.writeValueAsString(blockchainData);
-            contract.submitTransaction("CreateLandParcel", parcelJson);
+
+            // *** THIS IS THE FIX ***
+            // We now pass each argument individually to the chaincode function.
+            String blockchainId = getBlockchainId(savedParcel);
+            String surveyNumber = savedParcel.getSurveyNumber();
+            String village = savedParcel.getVillage();
+            String tehsil = savedParcel.getTehsil();
+            String area = String.valueOf(savedParcel.getArea());
+            String ownersJson = objectMapper.writeValueAsString(savedParcel.getOwners());
+
+            contract.submitTransaction("CreateLandParcel", blockchainId, surveyNumber, village, tehsil, area, ownersJson);
+
         } catch (Exception e) {
             throw new RuntimeException("Blockchain transaction failed: " + e.getMessage(), e);
         }

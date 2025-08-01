@@ -1,6 +1,8 @@
 package com.land.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.land.backend.dto.BlockInfoDTO;
+import com.land.backend.dto.TransactionInfoDTO;
 import com.land.backend.model.Block;
 import com.land.backend.model.Transaction;
 import com.land.backend.repository.BlockRepository;
@@ -49,33 +51,25 @@ public class LedgerIndexingService {
         System.out.println("✅ Received block event trigger for block: " + blockNumber);
 
         try {
-            // 1. Use the ExplorerService to fetch the full, decoded block JSON.
-            JsonNode blockJson = explorerService.getBlockByNumber(blockNumber);
+            // 1. Use the ExplorerService to fetch and parse the full block.
+            BlockInfoDTO blockInfo = explorerService.getBlockInfo(blockNumber);
 
-            // 2. Create and populate the Block entity from the rich JSON.
+            // 2. Create the Block entity for database persistence.
             Block block = new Block();
-            block.setBlockNumber(blockNumber);
-            block.setDataHash(blockJson.at("/header/data_hash").asText());
-            block.setPreviousHash(blockJson.at("/header/previous_hash").asText());
-            // Safely get timestamp from the first transaction in the block
-            if (blockJson.at("/data/data/0/payload/header/channel_header/timestamp").isTextual()) {
-                block.setTimestamp(Instant.parse(blockJson.at("/data/data/0/payload/header/channel_header/timestamp").asText()));
-            }
+            block.setBlockNumber(blockInfo.getBlockNumber());
+            block.setDataHash(blockInfo.getDataHash());
+            block.setPreviousHash(blockInfo.getPreviousHash());
+            block.setTimestamp(blockInfo.getTimestamp());
             block.setTransactions(new ArrayList<>());
 
-            // 3. Iterate through transactions in the block's JSON data.
-            JsonNode transactionsArray = blockJson.at("/data/data");
-            if (transactionsArray.isArray()) {
-                for (JsonNode txNode : transactionsArray) {
-                    JsonNode header = txNode.at("/payload/header/channel_header");
-                    JsonNode creator = txNode.at("/payload/header/signature_header/creator");
-
+            // 3. Create Transaction entities.
+            if (blockInfo.getTransactions() != null) {
+                for (TransactionInfoDTO txDto : blockInfo.getTransactions()) {
                     Transaction transaction = new Transaction();
-                    transaction.setTransactionId(header.at("/tx_id").asText());
-                    transaction.setCreatorMspId(creator.at("/mspid").asText());
-                    // This logic can be expanded later to parse chaincode args
-                    transaction.setChaincodeName("landcc"); // Placeholder
-
+                    transaction.setTransactionId(txDto.getTransactionId());
+                    transaction.setCreatorMspId(txDto.getCreatorMspId());
+                    transaction.setChaincodeName(txDto.getChaincodeName());
+                    transaction.setFunctionName(txDto.getFunctionName());
                     transaction.setBlock(block);
                     block.getTransactions().add(transaction);
                 }
@@ -85,11 +79,8 @@ public class LedgerIndexingService {
             blockRepository.save(block);
             System.out.println("✅ Indexed and saved block #" + block.getBlockNumber() + " with " + block.getTransactions().size() + " transactions.");
 
-            // 5. Send a real-time notification to the frontend.
-            messagingTemplate.convertAndSend("/topic/new-blocks", Map.of(
-                    "blockNumber", block.getBlockNumber(),
-                    "txCount", block.getTransactions().size()
-            ));
+            // 5. Send the rich BlockInfoDTO to the frontend via WebSocket.
+            messagingTemplate.convertAndSend("/topic/new-blocks", blockInfo);
 
         } catch (Exception e) {
             System.err.println("❌ Error processing block event for block #" + blockNumber + ": " + e.getMessage());
