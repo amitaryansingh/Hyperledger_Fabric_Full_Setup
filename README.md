@@ -22,31 +22,7 @@ Search and Filtering: Powerful search capabilities allow officials to quickly fi
 
 Secure & Scalable: Built with a modern technology stack designed for security, performance, and scalability.
 
-+--------------------------------------------+
-|           Professional Admin UI            |
-|      (React + Tailwind + Next.js SSR)      |
-+------------------+-------------------------+
-                   |
-                   ▼
-+--------------------------------------------+
-|         Secure Backend (Spring Boot)       |
-|        REST APIs + Fabric SDK + AI API     |
-+------------------+-------------------------+
-                   |
-     +-------------+-------------+
-     |                           |
-     ▼                           ▼
-+----------------+     +----------------------+
-| PostgreSQL DB  |     |  Blockchain Ledger   |
-| (Digitized DB) |     | (Hyperledger Fabric) |
-+----------------+     +----------------------+
-        |                        ▲
-        ▼                        |
-+-------------------------+      |
-| Old Map Images & Files  |      |
-|   (S3 Bucket or local)  +-----+
-+-------------------------+
-
+<img width="1024" height="1536" alt="ChatGPT Image Aug 2, 2025, 02_26_13 PM" src="https://github.com/user-attachments/assets/df4b92c1-3399-40ce-b3f5-fbaa898af08e" />
 
 ----------------
 Technology Stack
