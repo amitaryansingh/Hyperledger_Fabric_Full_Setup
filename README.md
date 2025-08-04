@@ -40,7 +40,7 @@ Divided this project into three parts (fabric-network , backend , frontend).
 Divided this project into three parts (fabric-network , backend , frontend).
 Divided this project into three parts (fabric-network , backend , frontend).
 
-------------------------------------- 1st Part --------------------------------------------
+#------------------------------------- 1st Part --------------------------------------------
 
 fabric-network :
 
@@ -72,7 +72,7 @@ then move to the path land-acquisition-system/fabric-network/scripts
 5th Command:  ./network down ( to turn off )
 
 
-------------------------------------- 2nd Part --------------------------------------------
+#------------------------------------- 2nd Part --------------------------------------------
 
 Sprinboot(backend)
 
@@ -141,13 +141,13 @@ file look like this:
 
 
 and after this run these commands from land-acquisition-system folder:
-# 2. Copy the connection profile we just created
+ 2. Copy the connection profile we just created
 cp fabric-network/config/connection-profiles/connection-gov.json backend/src/main/resources/crypto/
 
-# 3. Copy the Admin's signing certificate
+ 3. Copy the Admin's signing certificate
 cp fabric-network/crypto-config/peerOrganizations/gov.land.com/users/Admin@gov.land.com/msp/signcerts/cert.pem backend/src/main/resources/crypto/
 
-# 4. Copy and rename the Admin's private key
+ 4. Copy and rename the Admin's private key
 cp fabric-network/crypto-config/peerOrganizations/gov.land.com/users/Admin@gov.land.com/msp/keystore/*_sk backend/src/main/resources/crypto/admin_key.pem
 
 and after thin setup your postgresql a/c to application.properties
@@ -155,7 +155,7 @@ and after thin setup your postgresql a/c to application.properties
 and run your springboot app
 
 
-------------------------------------- 3rd Part --------------------------------------------
+#------------------------------------- 3rd Part --------------------------------------------
 frontend 
 
 go to land-acquisition-system/frontend
@@ -163,7 +163,7 @@ go to land-acquisition-system/frontend
 run npm install
 run npm run dev 
 
-_________________________________________________________________________________
+#_________________________________________________________________________________
 
 
 please contact me in case of any doubt on linkedin
