@@ -1,0 +1,10 @@
+##
+# Host Database
+#
+# localhost is used to configure the loopback interface
+# when the system is booting.  Do not change this entry.
+##
+
+127.0.0.1 orderer.land.com
+127.0.0.1 peer0.gov.land.com
+127.0.0.1 peer0.citizen.land.com
